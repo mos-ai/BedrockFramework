@@ -94,7 +94,11 @@ namespace Bedrock.Framework.Protocols.WebSockets
             output.Write(headerSpan);
             if (message.Payload.IsSingleSegment)
             {
+#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
+                output.Write(message.Payload.First.Span);
+#else
                 output.Write(message.Payload.FirstSpan);
+#endif
             }
             else
             {

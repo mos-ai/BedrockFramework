@@ -75,7 +75,7 @@ namespace Bedrock.Framework.Infrastructure
             return ReadAsyncInternal(new Memory<byte>(buffer, offset, count), cancellationToken).AsTask();
         }
 
-        public override ValueTask<int> ReadAsync(Memory<byte> destination, CancellationToken cancellationToken = default)
+        public ValueTask<int> ReadAsync(Memory<byte> destination, CancellationToken cancellationToken = default)
         {
             return ReadAsyncInternal(destination, cancellationToken);
         }
@@ -95,7 +95,7 @@ namespace Bedrock.Framework.Infrastructure
             await _output.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
+        public async ValueTask WriteAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
         {
             _output.Write(source.Span);
             await _output.FlushAsync(cancellationToken).ConfigureAwait(false);

@@ -63,10 +63,10 @@ namespace Bedrock.Framework.Protocols.WebSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GenerateMaskingKey()
         {
-            Span<byte> keyBytes = stackalloc byte[4];
-            _rng.GetBytes(keyBytes);
+            var keyBytes = new byte[4];
+            _rng.GetBytes(keyBytes, 0, keyBytes.Length);
 
-            return BitConverter.ToInt32(keyBytes);
+            return BitConverter.ToInt32(keyBytes, 0);
         }
 
         /// <summary>

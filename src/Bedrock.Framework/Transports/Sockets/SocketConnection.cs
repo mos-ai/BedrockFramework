@@ -253,13 +253,7 @@ namespace Bedrock.Framework
 
         private static ProtocolType DetermineProtocolType(EndPoint endPoint)
         {
-            switch (endPoint)
-            {
-                case UnixDomainSocketEndPoint _:
-                    return ProtocolType.Unspecified;
-                default:
-                    return ProtocolType.Tcp;
-            }
+            return ProtocolType.Tcp;
         }
     }
 }

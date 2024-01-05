@@ -55,7 +55,11 @@ namespace Bedrock.Framework.Protocols.WebSockets
             if (input.IsSingleSegment)
             {
                 var bytesToRead = (int)Math.Min(lengthRemaining, input.First.Length);
+#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
+                MaskUnmaskSpan(input.First.Span, bytesToRead);
+#else
                 MaskUnmaskSpan(input.FirstSpan, bytesToRead);
+#endif
 
                 position = input.GetPosition(bytesToRead);
                 return lengthRemaining - bytesToRead;

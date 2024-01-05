@@ -12,7 +12,7 @@ namespace Bedrock.Framework.Infrastructure
     /// A helper for wrapping a Stream decorator from an <see cref="IDuplexPipe"/>.
     /// </summary>
     /// <typeparam name="TStream"></typeparam>
-    internal class DuplexPipeStreamAdapter<TStream> : DuplexPipeStream, IDuplexPipe where TStream : Stream
+    internal class DuplexPipeStreamAdapter<TStream> : DuplexPipeStream, IDuplexPipe, IAsyncDisposable where TStream : Stream
     {
         private bool _disposed;
         private readonly object _disposeLock = new object();
@@ -37,7 +37,7 @@ namespace Bedrock.Framework.Infrastructure
 
         public PipeWriter Output { get; }
 
-        public override async ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             lock (_disposeLock)
             {

@@ -61,12 +61,12 @@ namespace Bedrock.Framework.Protocols.WebSockets
             ulong payloadLength = 0;
             if (extendedPayloadLengthSize == 2)
             {
-                reader.TryReadBigEndian(out short length);
+                reader.TryReadBigEndianShort(out short length);
                 payloadLength = (ushort)length;
             }
             else if (extendedPayloadLengthSize == 8)
             {
-                reader.TryReadBigEndian(out long length);
+                reader.TryReadBigEndianLong(out long length);
                 payloadLength = (ulong)length;
             }
             else
@@ -77,10 +77,10 @@ namespace Bedrock.Framework.Protocols.WebSockets
             int maskingKey = 0;
             if (masked)
             {
-                Span<byte> maskBytes = stackalloc byte[sizeof(int)];
+                var maskBytes = new byte[sizeof(int)];
                 reader.TryCopyTo(maskBytes);
 
-                maskingKey = BitConverter.ToInt32(maskBytes);
+                maskingKey = BitConverter.ToInt32(maskBytes, 0);
                 reader.Advance(sizeof(int));
             }
 

@@ -35,11 +35,6 @@ namespace Bedrock.Framework
             return this;
         }
 
-        public SocketsServerBuilder ListenUnixSocket(string socketPath, Action<IConnectionBuilder> configure)
-        {
-            return Listen(new UnixDomainSocketEndPoint(socketPath), configure);
-        }
-
         internal void Apply(ServerBuilder builder)
         {
             var socketTransportFactory = new SocketTransportFactory(Microsoft.Extensions.Options.Options.Create(Options), builder.ApplicationServices.GetLoggerFactory());
