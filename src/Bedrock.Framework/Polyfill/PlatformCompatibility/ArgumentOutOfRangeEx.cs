@@ -17,7 +17,7 @@ namespace System
     /// </summary>
     [Serializable]
     [TypeForwardedFrom("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")]
-    public class ArgumentOutOfRangeException : ArgumentException
+    public class ArgumentOutOfRangeEx : ArgumentException
     {
         internal const int COR_E_ARGUMENTOUTOFRANGE = unchecked((int)0x80131502);
 
@@ -27,31 +27,31 @@ namespace System
 
         // Creates a new ArgumentOutOfRangeException with its message
         // string set to a default message explaining an argument was out of range.
-        public ArgumentOutOfRangeException()
+        public ArgumentOutOfRangeEx()
             : base(Arg_ArgumentOutOfRangeException)
         {
             HResult = COR_E_ARGUMENTOUTOFRANGE;
         }
 
-        public ArgumentOutOfRangeException(string? paramName)
+        public ArgumentOutOfRangeEx(string? paramName)
             : base(Arg_ArgumentOutOfRangeException, paramName)
         {
             HResult = COR_E_ARGUMENTOUTOFRANGE;
         }
 
-        public ArgumentOutOfRangeException(string? paramName, string? message)
+        public ArgumentOutOfRangeEx(string? paramName, string? message)
             : base(message, paramName)
         {
             HResult = COR_E_ARGUMENTOUTOFRANGE;
         }
 
-        public ArgumentOutOfRangeException(string? message, Exception? innerException)
+        public ArgumentOutOfRangeEx(string? message, Exception? innerException)
             : base(message, innerException)
         {
             HResult = COR_E_ARGUMENTOUTOFRANGE;
         }
 
-        public ArgumentOutOfRangeException(string? paramName, object? actualValue, string? message)
+        public ArgumentOutOfRangeEx(string? paramName, object? actualValue, string? message)
             : base(message, paramName)
         {
             _actualValue = actualValue;
@@ -59,7 +59,7 @@ namespace System
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected ArgumentOutOfRangeException(SerializationInfo info, StreamingContext context)
+        protected ArgumentOutOfRangeEx(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _actualValue = info.GetValue("ActualValue", typeof(object));

@@ -66,7 +66,7 @@ public class Stack<T> : IEnumerable<T>,
     // must be a non-negative number.
     public Stack(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+        ArgumentOutOfRangeEx.ThrowIfNegative(capacity);
         _array = new T[capacity];
     }
 
@@ -197,11 +197,11 @@ public class Stack<T> : IEnumerable<T>,
     /// Sets the capacity of a <see cref="Stack{T}"/> object to a specified number of entries.
     /// </summary>
     /// <param name="capacity">The new capacity.</param>
-    /// <exception cref="ArgumentOutOfRangeException">Passed capacity is lower than 0 or entries count.</exception>
+    /// <exception cref="ArgumentOutOfRangeEx">Passed capacity is lower than 0 or entries count.</exception>
     public void TrimExcess(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-        ArgumentOutOfRangeException.ThrowIfLessThan(capacity, _size);
+        ArgumentOutOfRangeEx.ThrowIfNegative(capacity);
+        ArgumentOutOfRangeEx.ThrowIfLessThan(capacity, _size);
 
         if (capacity == _array.Length)
             return;
@@ -316,7 +316,7 @@ public class Stack<T> : IEnumerable<T>,
     /// <returns>The new capacity of this stack.</returns>
     public int EnsureCapacity(int capacity)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+        ArgumentOutOfRangeEx.ThrowIfNegative(capacity);
 
         if (_array.Length < capacity)
         {
