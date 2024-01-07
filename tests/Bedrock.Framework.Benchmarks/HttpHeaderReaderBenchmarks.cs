@@ -1,4 +1,4 @@
-﻿using Bedrock.Framework.Protocols.Http.Http1;
+﻿//using Bedrock.Framework.Protocols.Http.Http1;
 using BenchmarkDotNet.Attributes;
 using System;
 using System.Buffers;

@@ -8,15 +8,17 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Bedrock.Framework;
-using Bedrock.Framework.Experimental.Protocols.RabbitMQ;
-using Bedrock.Framework.Experimental.Protocols.Memcached;
 using Bedrock.Framework.Protocols;
-using Bedrock.Framework.Transports.Memory;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Protocols;
+
+using Bedrock.Framework.Transports.Memory;
+
+using Bedrock.Framework.Experimental.Protocols.RabbitMQ;
+using Bedrock.Framework.Experimental.Protocols.Memcached;
 using Bedrock.Framework.Experimental.Protocols.RabbitMQ.Methods;
 
 namespace ClientApplication
@@ -95,73 +97,73 @@ namespace ClientApplication
             }
         }
 
-        private static async Task RabbitMQProtocol(IServiceProvider serviceProvider)
-        {
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Error);
-                builder.AddConsole();
-            });
+        //private static async Task RabbitMQProtocol(IServiceProvider serviceProvider)
+        //{
+        //    var loggerFactory = LoggerFactory.Create(builder =>
+        //    {
+        //        builder.SetMinimumLevel(LogLevel.Error);
+        //        builder.AddConsole();
+        //    });
 
-            var client = new ClientBuilder(serviceProvider)
-                .UseSockets()
-                .UseConnectionLogging(loggerFactory: loggerFactory)
-                .Build();
+        //    var client = new ClientBuilder(serviceProvider)
+        //        .UseSockets()
+        //        .UseConnectionLogging(loggerFactory: loggerFactory)
+        //        .Build();
 
-            var ipAddress = IPAddress.Parse("127.0.0.1");
-            var connection = await client.ConnectAsync(new IPEndPoint(ipAddress, 5672));
-            var rabbitMqClientProtocol = new RabbitMQClientProtocol(connection);
+        //    var ipAddress = IPAddress.Parse("127.0.0.1");
+        //    var connection = await client.ConnectAsync(new IPEndPoint(ipAddress, 5672));
+        //    var rabbitMqClientProtocol = new RabbitMQClientProtocol(connection);
 
-            await rabbitMqClientProtocol.SendAsync(new RabbitMQProtocolVersionHeader());
-            var connectionStart = await rabbitMqClientProtocol.ReceiveAsync<ConnectionStart>();
-            //           
-            byte[] credentials = Encoding.UTF8.GetBytes("\0guest" + "\0guest");
+        //    await rabbitMqClientProtocol.SendAsync(new RabbitMQProtocolVersionHeader());
+        //    var connectionStart = await rabbitMqClientProtocol.ReceiveAsync<ConnectionStart>();
+        //    //           
+        //    byte[] credentials = Encoding.UTF8.GetBytes("\0guest" + "\0guest");
 
-            await rabbitMqClientProtocol.SendAsync(new ConnectionOk(connectionStart.SecurityMechanims, new ReadOnlyMemory<byte>(credentials), connectionStart.Locale));
-            var connectionTune = await rabbitMqClientProtocol.ReceiveAsync<ConnectionTune>();
+        //    await rabbitMqClientProtocol.SendAsync(new ConnectionOk(connectionStart.SecurityMechanims, new ReadOnlyMemory<byte>(credentials), connectionStart.Locale));
+        //    var connectionTune = await rabbitMqClientProtocol.ReceiveAsync<ConnectionTune>();
 
-            await rabbitMqClientProtocol.SendAsync(new ConnectionTuneOk(connectionTune.MaxChannel, connectionTune.MaxFrame, connectionTune.HeartBeat));
-            await rabbitMqClientProtocol.SendAsync(new ConnectionOpen(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes("/")),
-                new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(string.Empty)),
-                0));
-            var connectionOpenOk = await rabbitMqClientProtocol.ReceiveAsync<ConnectionOpenOk>();
+        //    await rabbitMqClientProtocol.SendAsync(new ConnectionTuneOk(connectionTune.MaxChannel, connectionTune.MaxFrame, connectionTune.HeartBeat));
+        //    await rabbitMqClientProtocol.SendAsync(new ConnectionOpen(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes("/")),
+        //        new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(string.Empty)),
+        //        0));
+        //    var connectionOpenOk = await rabbitMqClientProtocol.ReceiveAsync<ConnectionOpenOk>();
 
-            ushort channelId = 1;
-            await rabbitMqClientProtocol.SendAsync(new ChannelOpen(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(string.Empty)), channelId));
-            var channelOpenOk = await rabbitMqClientProtocol.ReceiveAsync<ChannelOpenOk>();
+        //    ushort channelId = 1;
+        //    await rabbitMqClientProtocol.SendAsync(new ChannelOpen(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(string.Empty)), channelId));
+        //    var channelOpenOk = await rabbitMqClientProtocol.ReceiveAsync<ChannelOpenOk>();
 
-            await rabbitMqClientProtocol.SendAsync(new QueueDeclare(channelId, 0, "queue_test"));
-            var queueDeclareOk = await rabbitMqClientProtocol.ReceiveAsync<QueueDeclareOk>();
+        //    await rabbitMqClientProtocol.SendAsync(new QueueDeclare(channelId, 0, "queue_test"));
+        //    var queueDeclareOk = await rabbitMqClientProtocol.ReceiveAsync<QueueDeclareOk>();
 
-            await rabbitMqClientProtocol.SendAsync(new QueueDelete(channelId, 0, "queue_test"));
-            var queueDeleteOk = await rabbitMqClientProtocol.ReceiveAsync<QueueDeleteOk>();
-        }
+        //    await rabbitMqClientProtocol.SendAsync(new QueueDelete(channelId, 0, "queue_test"));
+        //    var queueDeleteOk = await rabbitMqClientProtocol.ReceiveAsync<QueueDeleteOk>();
+        //}
 
-        private static async Task MemcachedProtocol(IServiceProvider serviceProvider)
-        {
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Error);
-                builder.AddConsole();
-            });
+        //private static async Task MemcachedProtocol(IServiceProvider serviceProvider)
+        //{
+        //    var loggerFactory = LoggerFactory.Create(builder =>
+        //    {
+        //        builder.SetMinimumLevel(LogLevel.Error);
+        //        builder.AddConsole();
+        //    });
 
-            var client = new ClientBuilder(serviceProvider)
-                .UseSockets()
-                .UseConnectionLogging(loggerFactory: loggerFactory)
-                .Build();
+        //    var client = new ClientBuilder(serviceProvider)
+        //        .UseSockets()
+        //        .UseConnectionLogging(loggerFactory: loggerFactory)
+        //        .Build();
 
-            var ipAddress = IPAddress.Parse("127.0.0.1");
-            var connection = await client.ConnectAsync(new IPEndPoint(ipAddress, 11211));
-            MemcachedProtocol memcachedProtocol = new MemcachedProtocol(connection);
+        //    var ipAddress = IPAddress.Parse("127.0.0.1");
+        //    var connection = await client.ConnectAsync(new IPEndPoint(ipAddress, 11211));
+        //    MemcachedProtocol memcachedProtocol = new MemcachedProtocol(connection);
 
-            await memcachedProtocol.Set("Hello", Encoding.UTF8.GetBytes("World"), TimeSpan.FromMinutes(30));
-            var checkSet = await memcachedProtocol.Get("Hello");
-            Console.WriteLine($"checkSet result :{Encoding.UTF8.GetString(checkSet)}");
+        //    await memcachedProtocol.Set("Hello", Encoding.UTF8.GetBytes("World"), TimeSpan.FromMinutes(30));
+        //    var checkSet = await memcachedProtocol.Get("Hello");
+        //    Console.WriteLine($"checkSet result :{Encoding.UTF8.GetString(checkSet)}");
 
-            await memcachedProtocol.Replace("Hello", Encoding.UTF8.GetBytes("World replaced"), TimeSpan.FromMinutes(30));
-            var checkReplace = await memcachedProtocol.Get("Hello");
-            Console.WriteLine($"checkReplace result :{Encoding.UTF8.GetString(checkReplace)}");
-        }
+        //    await memcachedProtocol.Replace("Hello", Encoding.UTF8.GetBytes("World replaced"), TimeSpan.FromMinutes(30));
+        //    var checkReplace = await memcachedProtocol.Get("Hello");
+        //    Console.WriteLine($"checkReplace result :{Encoding.UTF8.GetString(checkReplace)}");
+        //}
 
         private static async Task EchoServer(IServiceProvider serviceProvider)
         {
@@ -261,18 +263,18 @@ namespace ClientApplication
             var client = new ClientBuilder(serviceProvider)
                                     .UseSockets()
                                     .UseConnectionLogging()
-                                    .UseClientTls(options =>
-                                    {
-                                        options.OnAuthenticateAsClient = (connection, o) =>
-                                        {
-                                            o.TargetHost = "foo";
-                                        };
+                                    //.UseClientTls(options =>
+                                    //{
+                                    //    options.OnAuthenticateAsClient = (connection, o) =>
+                                    //    {
+                                    //        o.TargetHost = "foo";
+                                    //    };
 
-                                        options.LocalCertificate = new X509Certificate2("testcert.pfx", "testcert");
+                                    //    options.LocalCertificate = new X509Certificate2("testcert.pfx", "testcert");
 
-                                        // NOTE: Do not do this in a production environment
-                                        options.AllowAnyRemoteCertificate();
-                                    })
+                                    //    // NOTE: Do not do this in a production environment
+                                    //    options.AllowAnyRemoteCertificate();
+                                    //})
                                     .Build();
 
             var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 5004));
@@ -360,7 +362,7 @@ namespace ClientApplication
                         .UseConnectionLogging()
                         .Build();
 
-            await using var connection = await client.ConnectAsync(new NamedPipeEndPoint("docker_engine"));
+            await using var connection = await client.ConnectAsync(new Bedrock.Framework.NamedPipeEndPoint("docker_engine"));
 
             // Use the HTTP/1.1 protocol
             var httpProtocol = new HttpClientProtocol(connection);

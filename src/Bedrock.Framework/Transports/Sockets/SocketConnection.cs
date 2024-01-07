@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace Bedrock.Framework
 {
-    internal class SocketConnection : ConnectionContext, IConnectionInherentKeepAliveFeature
+    public class SocketConnection : ConnectionContext, IConnectionInherentKeepAliveFeature
     {
         private readonly Socket _socket;
         private volatile bool _aborted;

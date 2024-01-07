@@ -52,7 +52,7 @@ namespace System.Buffers
             reader.Advance(sizeof(T));
             return true;
         }
-
+        #if NETSTANDARD2_0
         /// <summary>
         /// Reads an <see cref="short"/> as little endian.
         /// </summary>
@@ -66,7 +66,7 @@ namespace System.Buffers
 
             return TryReadReverseEndianness(ref reader, out value);
         }
-
+#endif
         /// <summary>
         /// Reads an <see cref="short"/> as big endian.
         /// </summary>
@@ -92,6 +92,7 @@ namespace System.Buffers
             return false;
         }
 
+#if NETSTANDARD2_0
         /// <summary>
         /// Reads an <see cref="int"/> as little endian.
         /// </summary>
@@ -105,7 +106,6 @@ namespace System.Buffers
 
             return TryReadReverseEndianness(ref reader, out value);
         }
-
         /// <summary>
         /// Reads an <see cref="int"/> as big endian.
         /// </summary>
@@ -119,7 +119,7 @@ namespace System.Buffers
 
             return TryReadReverseEndianness(ref reader, out value);
         }
-
+#endif
         private static bool TryReadReverseEndianness(ref SequenceReader<byte> reader, out int value)
         {
             if (reader.TryRead(out value))

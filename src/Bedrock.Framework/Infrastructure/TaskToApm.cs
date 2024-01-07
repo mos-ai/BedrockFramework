@@ -12,7 +12,9 @@
 //     public int EndFoo(IAsyncResult asyncResult) =>
 //         TaskToApm.End<int>(asyncResult);
 
+#if NET80_OR_GREATER
 #nullable enable
+#endif
 using System.Diagnostics;
 
 namespace System.Threading.Tasks
@@ -30,9 +32,8 @@ namespace System.Threading.Tasks
         /// <param name="callback">The callback to be invoked upon completion.</param>
         /// <param name="state">The state to be stored in the IAsyncResult.</param>
         /// <returns>An IAsyncResult to represent the task's asynchronous operation.</returns>
-        public static IAsyncResult Begin(Task task, AsyncCallback? callback, object? state) =>
+        public static IAsyncResult Begin(Task task, AsyncCallback callback, object state) =>
             new TaskAsyncResult(task, state, callback);
-
         /// <summary>Processes an IAsyncResult returned by Begin.</summary>
         /// <param name="asyncResult">The IAsyncResult to unwrap.</param>
         public static void End(IAsyncResult asyncResult)
@@ -69,13 +70,13 @@ namespace System.Threading.Tasks
             /// <summary>The wrapped Task.</summary>
             internal readonly Task _task;
             /// <summary>Callback to invoke when the wrapped task completes.</summary>
-            private readonly AsyncCallback? _callback;
+            private readonly AsyncCallback _callback;
 
             /// <summary>Initializes the IAsyncResult with the Task to wrap and the associated object state.</summary>
             /// <param name="task">The Task to wrap.</param>
             /// <param name="state">The new AsyncState value.</param>
             /// <param name="callback">Callback to invoke when the wrapped task completes.</param>
-            internal TaskAsyncResult(Task task, object? state, AsyncCallback? callback)
+            internal TaskAsyncResult(Task task, object state, AsyncCallback callback)
             {
                 Debug.Assert(task != null);
                 _task = task;
@@ -108,7 +109,7 @@ namespace System.Threading.Tasks
             }
 
             /// <summary>Gets a user-defined object that qualifies or contains information about an asynchronous operation.</summary>
-            public object? AsyncState { get; }
+            public object AsyncState { get; }
             /// <summary>Gets a value that indicates whether the asynchronous operation completed synchronously.</summary>
             /// <remarks>This is set lazily based on whether the <see cref="_task"/> has completed by the time this object is created.</remarks>
             public bool CompletedSynchronously { get; }
