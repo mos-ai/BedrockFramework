@@ -15,9 +15,9 @@ jobs:
         setAllVars: true
 
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1.7.2
+      uses: actions/setup-dotnet@v4
       with:
-        version: 3.1.100
+        dotnet-version: 8.0.x
      
     - name: dotnet build
       run: dotnet build BedrockFramework.sln -c Release
@@ -29,19 +29,19 @@ jobs:
       run: dotnet pack BedrockFramework.sln -c Release --no-build --include-source --include-symbols
 
     - name: setup nuget
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: NuGet/setup-nuget@v1.0.5
       with:
         nuget-version: latest
 
     - name: Set API key
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      run: nuget setapikey ${{ secrets.FEEDZ_TOKEN }} -Config nuget.config -Source https://f.feedz.io/davidfowl/bedrockframework/nuget/index.json
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: nuget setapikey ${{ secrets.NUGET_TOKEN_INTERNAL }} -Config nuget.config -Source ${{ vars.NUGET_SOURCE_INTERNAL }}
 
     - name: Set symbols API key
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      run: nuget setapikey ${{ secrets.FEEDZ_TOKEN }} -Config nuget.config -Source https://f.feedz.io/davidfowl/bedrockframework/symbols
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: nuget setapikey ${{ secrets.NUGET_TOKEN_INTERNAL }} -Config nuget.config -Source ${{ vars.NUGET_SOURCE_SYMBOLS_INTERNAL }}
 
     - name: push packages
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      run: dotnet nuget push **/*.nupkg -s https://f.feedz.io/davidfowl/bedrockframework/nuget/index.json -ss https://f.feedz.io/davidfowl/bedrockframework/symbols --skip-duplicate
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: dotnet nuget push **/*.nupkg -s ${{ vars.NUGET_SOURCE_INTERNAL }} -ss ${{ vars.NUGET_SOURCE_SYMBOLS_INTERNAL }} --skip-duplicate
