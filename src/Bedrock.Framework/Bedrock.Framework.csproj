@@ -28,23 +28,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
     <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
-    <PackageReference Include="Polyfill" Version="1.34.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
 
-    <PackageReference Include="System.ValueTuple" Version="4.5.0"
-					  Condition="$(TargetFramework.StartsWith('net46'))" />
-      
-    <PackageReference Include="System.Memory" Version="4.5.5"
-					  Condition="$(TargetFrameworkIdentifier) == '.NETStandard' or
-					             $(TargetFrameworkIdentifier) == '.NETFramework' or
-								 $(TargetFramework.StartsWith('netcoreapp2'))" />
-      
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4"
-					  Condition="$(TargetFramework) == 'netstandard2.0' or
-					             $(TargetFramework) == 'netcoreapp2.0' or
-								 $(TargetFrameworkIdentifier) == '.NETFramework'" />
+	<PackageReference Include="Polyfill.Experimental" Version="1.0.1" />
       
     <Reference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets">
       <HintPath>refs\Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.dll</HintPath>

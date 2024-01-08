@@ -1,5 +1,10 @@
 ﻿#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+// https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -101,5 +106,12 @@ public static class BitOperations
 #endif
     }
 }
+
+#else
+
+using System.Numerics;
+using System.Runtime.CompilerServices;
+
+[assembly: TypeForwardedTo(typeof(BitOperations))]
 
 #endif

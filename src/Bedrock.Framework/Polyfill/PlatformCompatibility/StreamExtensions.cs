@@ -4,10 +4,10 @@ using System;
 using System.Buffers;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
-static partial class PolyfillExtensions_Stream
+static partial class StreamExtensions
 {
     private static string IO_StreamTooLong = "IO: Stream Too Long";
 
