@@ -34,5 +34,8 @@
     <Reference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets">
       <HintPath>refs\Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.dll</HintPath>
     </Reference>
+	<ProjectReference Include="..\..\..\..\..\..\System.Net.Security\src\System.Net.Security.csproj">
+		<Aliases>NetCore</Aliases>
+	</ProjectReference>
   </ItemGroup>
 </Project>

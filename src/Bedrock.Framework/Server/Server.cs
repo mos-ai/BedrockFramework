@@ -1,4 +1,9 @@
-﻿using System;
+﻿#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
+extern alias NetCore;
+using NetCore;
+#endif
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
@@ -242,7 +247,7 @@ namespace Bedrock.Framework
             }
 
 
-            private IDisposable BeginConnectionScope(ServerConnection connection)
+            private IDisposable? BeginConnectionScope(ServerConnection connection)
             {
                 if (_server._logger.IsEnabled(LogLevel.Critical))
                 {

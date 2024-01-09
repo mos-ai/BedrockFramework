@@ -9,7 +9,7 @@ namespace Bedrock.Framework
 {
     public class SocketsServerBuilder
     {
-        private List<(EndPoint EndPoint, int Port, Action<IConnectionBuilder> Application)> _bindings = new List<(EndPoint, int, Action<IConnectionBuilder>)>();
+        private readonly List<(EndPoint? EndPoint, int Port, Action<IConnectionBuilder> Application)> _bindings = new List<(EndPoint?, int, Action<IConnectionBuilder>)>();
 
         public SocketTransportOptions Options { get; } = new SocketTransportOptions();
 
@@ -34,6 +34,13 @@ namespace Bedrock.Framework
             _bindings.Add((null, port, configure));
             return this;
         }
+
+#if !(NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
+        public SocketsServerBuilder ListenUnixSocket(string socketPath, Action<IConnectionBuilder> configure)
+        {
+            return Listen(new UnixDomainSocketEndPoint(socketPath), configure);
+        }
+#endif
 
         internal void Apply(ServerBuilder builder)
         {

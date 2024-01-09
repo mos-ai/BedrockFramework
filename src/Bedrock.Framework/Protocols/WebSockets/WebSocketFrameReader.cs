@@ -77,10 +77,17 @@ namespace Bedrock.Framework.Protocols.WebSockets
             int maskingKey = 0;
             if (masked)
             {
+#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
                 var maskBytes = new byte[sizeof(int)];
                 reader.TryCopyTo(maskBytes);
 
                 maskingKey = BitConverter.ToInt32(maskBytes, 0);
+#else
+                Span<byte> maskBytes = stackalloc byte[sizeof(int)];
+                reader.TryCopyTo(maskBytes);
+
+                maskingKey = BitConverter.ToInt32(maskBytes);
+#endif
                 reader.Advance(sizeof(int));
             }
 

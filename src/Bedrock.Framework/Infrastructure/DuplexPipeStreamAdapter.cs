@@ -37,7 +37,11 @@ namespace Bedrock.Framework.Infrastructure
 
         public PipeWriter Output { get; }
 
+#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
         public async ValueTask DisposeAsync()
+#else
+        public override async ValueTask DisposeAsync()
+#endif
         {
             lock (_disposeLock)
             {

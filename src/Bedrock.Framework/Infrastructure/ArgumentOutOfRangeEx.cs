@@ -12,85 +12,8 @@ using System.Runtime.Serialization;
 
 namespace System
 {
-    /// <summary>
-    /// The exception that is thrown when the value of an argument is outside the allowable range of values as defined by the invoked method.
-    /// </summary>
-    [Serializable]
-    [TypeForwardedFrom("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")]
-    public class ArgumentOutOfRangeEx : ArgumentException
+    public static class ArgumentOutOfRangeExceptionEx
     {
-        internal const int COR_E_ARGUMENTOUTOFRANGE = unchecked((int)0x80131502);
-
-        private const string Arg_ArgumentOutOfRangeException = "Argument out of range exception.";
-
-        private readonly object? _actualValue;
-
-        // Creates a new ArgumentOutOfRangeException with its message
-        // string set to a default message explaining an argument was out of range.
-        public ArgumentOutOfRangeEx()
-            : base(Arg_ArgumentOutOfRangeException)
-        {
-            HResult = COR_E_ARGUMENTOUTOFRANGE;
-        }
-
-        public ArgumentOutOfRangeEx(string? paramName)
-            : base(Arg_ArgumentOutOfRangeException, paramName)
-        {
-            HResult = COR_E_ARGUMENTOUTOFRANGE;
-        }
-
-        public ArgumentOutOfRangeEx(string? paramName, string? message)
-            : base(message, paramName)
-        {
-            HResult = COR_E_ARGUMENTOUTOFRANGE;
-        }
-
-        public ArgumentOutOfRangeEx(string? message, Exception? innerException)
-            : base(message, innerException)
-        {
-            HResult = COR_E_ARGUMENTOUTOFRANGE;
-        }
-
-        public ArgumentOutOfRangeEx(string? paramName, object? actualValue, string? message)
-            : base(message, paramName)
-        {
-            _actualValue = actualValue;
-            HResult = COR_E_ARGUMENTOUTOFRANGE;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected ArgumentOutOfRangeEx(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _actualValue = info.GetValue("ActualValue", typeof(object));
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("ActualValue", _actualValue, typeof(object));
-        }
-
-        public override string Message
-        {
-            get
-            {
-                string s = base.Message;
-                if (_actualValue != null)
-                {
-                    string valueMessage = $"ArgumentOutOfRange_ActualValue, {_actualValue}";
-                    if (s == null)
-                        return valueMessage;
-                    return s + Environment.NewLine + valueMessage;
-                }
-                return s;
-            }
-        }
-
-        // Gets the value of the argument that caused the exception.
-        public virtual object? ActualValue => _actualValue;
-
         [DoesNotReturn]
         private static void ThrowZero<T>(T value, string? paramName) =>
             throw new ArgumentOutOfRangeException(paramName, value, $"ArgumentOutOfRange_Generic_MustBeNonZero, {paramName}, {value}");

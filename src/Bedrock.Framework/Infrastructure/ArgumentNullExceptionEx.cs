@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-internal class ArgumentNullEx : ArgumentNullException
+internal static class ArgumentNullExceptionEx
 {
     /// <summary>Throws an <see cref="ArgumentNullException"/> if <paramref name="argument"/> is null.</summary>
     /// <param name="argument">The reference type argument to validate as non-null.</param>
