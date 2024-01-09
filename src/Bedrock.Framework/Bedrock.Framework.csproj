@@ -29,13 +29,14 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
     <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
 
-	<PackageReference Include="Polyfill.Experimental" Version="1.0.1" />
+    <PackageReference Include="Polyfill.Experimental" Version="1.0.1" />
       
     <Reference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets">
       <HintPath>refs\Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.dll</HintPath>
     </Reference>
-	<ProjectReference Include="..\..\..\..\..\..\System.Net.Security\src\System.Net.Security.csproj">
-		<Aliases>NetCore</Aliases>
-	</ProjectReference>
+
+    <PackageReference Include="System.Net.Security" Version="1.0.0">
+      <Aliases>NetCore</Aliases>
+    </PackageReference>
   </ItemGroup>
 </Project>
