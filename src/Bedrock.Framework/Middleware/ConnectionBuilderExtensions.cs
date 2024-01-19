@@ -24,6 +24,12 @@ namespace Bedrock.Framework
             return builder;
         }
 
+        public static TBuilder UseConnectionLogging<TBuilder>(this TBuilder builder, ILogger logger, LoggingFormatter? loggingFormatter = null) where TBuilder : IConnectionBuilder
+        {
+            builder.Use(next => new LoggingConnectionMiddleware(next, logger, loggingFormatter).OnConnectionAsync);
+            return builder;
+        }
+
         public static TBuilder UseConnectionLimits<TBuilder>(this TBuilder builder, int connectionLimit) where TBuilder : IConnectionBuilder
         {
             var loggerFactory = builder.ApplicationServices.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance;

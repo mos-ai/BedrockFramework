@@ -16,7 +16,7 @@ namespace Bedrock.Framework
                 throw new NotSupportedException($"{endpoint.GetType()} is not supported");
             }
 
-            var pipeStream = new NamedPipeClientStream(np.ServerName, np.PipeName, PipeDirection.InOut, np.PipeOptions);
+            var pipeStream = new NamedPipeClientStream(np.ServerName, np.PipeName, PipeDirection.InOut, np.PipeOptions, np.ImpersonationLevel);
             await pipeStream.ConnectAsync(cancellationToken).ConfigureAwait(false);
 
             return new NamedPipeConnectionContext(pipeStream, np);

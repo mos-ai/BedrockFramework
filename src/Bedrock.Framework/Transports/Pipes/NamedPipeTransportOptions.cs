@@ -3,10 +3,6 @@
 
 // https://github.com/dotnet/aspnetcore/blob/main/src/Servers/Kestrel/Transport.NamedPipes/src/NamedPipeTransportOptions.cs
 
-using System;
-using System.Buffers;
-using System.IO.Pipes;
-
 namespace Bedrock.Framework;
 
 /// <summary>
