@@ -4,7 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Bedrock.Framework;
 using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.SignalR;
+//using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +22,7 @@ namespace ServerApplication
                 builder.AddConsole();
             });
 
-            services.AddSignalR();
+            //services.AddSignalR();
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -34,12 +34,12 @@ namespace ServerApplication
                                 builder => builder.UseConnectionLogging().UseConnectionHandler<EchoServerApplication>());
 
                             // HTTP/1.1 server
-                            namedPipes.Listen("default_http11",
-                                builder => builder.UseConnectionLogging().UseConnectionHandler<HttpApplication>());
+                            //namedPipes.Listen("default_http11",
+                            //    builder => builder.UseConnectionLogging().UseConnectionHandler<HttpApplication>());
 
                             // SignalR Hub
-                            namedPipes.Listen("default_signalr",
-                                builder => builder.UseConnectionLogging().UseHub<Chat>());
+                            //namedPipes.Listen("default_signalr",
+                            //    builder => builder.UseConnectionLogging().UseHub<Chat>());
 
                             // MQTT application
                             namedPipes.Listen("default_mqtt",

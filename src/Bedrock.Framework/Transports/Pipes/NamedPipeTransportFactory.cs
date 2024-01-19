@@ -16,7 +16,7 @@ namespace Bedrock.Framework;
 /// <summary>
 /// A factory for named pipe based connections.
 /// </summary>
-#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
+#if (NET8_0_OR_GREATER)
 public sealed class NamedPipeTransportFactory : IConnectionListenerFactory, IConnectionListenerFactorySelector
 #else
 public sealed class NamedPipeTransportFactory : IConnectionListenerFactory
