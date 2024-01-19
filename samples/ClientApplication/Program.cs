@@ -13,7 +13,7 @@ using Bedrock.Framework;
 using Bedrock.Framework.Protocols;
 using Bedrock.Framework.Transports.Memory;
 using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.SignalR.Client;
+//using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Protocols;
@@ -62,7 +62,7 @@ namespace ClientApplication
                 else if (keyInfo.Key == ConsoleKey.D3)
                 {
                     Console.WriteLine("Running SignalR example");
-                    await SignalR();
+                    //await SignalR();
                 }
                 else if (keyInfo.Key == ConsoleKey.D5)
                 {
@@ -72,7 +72,7 @@ namespace ClientApplication
                 else if (keyInfo.Key == ConsoleKey.D6)
                 {
                     Console.WriteLine("Custom length prefixed protocol.");
-                    await CustomProtocol();
+                    //await CustomProtocol();
                 }
                 //else if (keyInfo.Key == ConsoleKey.D7)
                 //{
@@ -222,35 +222,35 @@ namespace ClientApplication
         //    }
         //}
 
-        private static async Task SignalR()
-        {
-            var hubConnection = new HubConnectionBuilder()
-                                .WithClientBuilder(new NamedPipeEndPoint("default_signalr"), builder =>
-                                {
-                                    builder.UseNamedPipes()
-                                           .UseConnectionLogging();
-                                })
-                                .ConfigureLogging(builder =>
-                                {
-                                    builder.SetMinimumLevel(LogLevel.Debug);
-                                    builder.AddConsole();
-                                })
-                                .WithAutomaticReconnect()
-                                .Build();
+        //private static async Task SignalR()
+        //{
+        //    var hubConnection = new HubConnectionBuilder()
+        //                        .WithClientBuilder(new NamedPipeEndPoint("default_signalr"), builder =>
+        //                        {
+        //                            builder.UseNamedPipes()
+        //                                   .UseConnectionLogging();
+        //                        })
+        //                        .ConfigureLogging(builder =>
+        //                        {
+        //                            builder.SetMinimumLevel(LogLevel.Debug);
+        //                            builder.AddConsole();
+        //                        })
+        //                        .WithAutomaticReconnect()
+        //                        .Build();
 
-            hubConnection.On<string>("Send", data =>
-            {
-                // The connection logging will dump the raw payload on the wire
-            });
+        //    hubConnection.On<string>("Send", data =>
+        //    {
+        //        // The connection logging will dump the raw payload on the wire
+        //    });
 
-            await hubConnection.StartAsync();
+        //    await hubConnection.StartAsync();
 
-            while (true)
-            {
-                var line = Console.ReadLine();
-                await hubConnection.InvokeAsync("Send", line);
-            }
-        }
+        //    while (true)
+        //    {
+        //        var line = Console.ReadLine();
+        //        await hubConnection.InvokeAsync("Send", line);
+        //    }
+        //}
 
 
         private static async Task InMemoryEchoTransport(IServiceProvider serviceProvider)
@@ -265,7 +265,7 @@ namespace ClientApplication
             var server = new ServerBuilder(serviceProvider)
                         .Listen(endPoint: null, memoryTransport, builder =>
                         {
-                            builder.UseConnectionLogging("Server").Run(connection => connection.Transport.Input.CopyToAsync(connection.Transport.Output));
+                            _ = builder.UseConnectionLogging("Server").Run(c => c.Transport.Input.CopyToAsync(c.Transport.Output));
                         })
                         .Build();
 
@@ -285,40 +285,40 @@ namespace ClientApplication
             await server.StopAsync();
         }
 
-        private static async Task CustomProtocol()
-        {
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Debug);
-                builder.AddConsole();
-            });
+        //private static async Task CustomProtocol()
+        //{
+        //    var loggerFactory = LoggerFactory.Create(builder =>
+        //    {
+        //        builder.SetMinimumLevel(LogLevel.Debug);
+        //        builder.AddConsole();
+        //    });
 
-            var client = new ClientBuilder()
-                                    .UseNamedPipes()
-                                    .UseConnectionLogging(loggerFactory: loggerFactory)
-                                    .Build();
+        //    var client = new ClientBuilder()
+        //                            .UseNamedPipes()
+        //                            .UseConnectionLogging(loggerFactory: loggerFactory)
+        //                            .Build();
 
-            await using var connection = await client.ConnectAsync(new NamedPipeEndPoint("default"));
-            Console.WriteLine($"Connected to {connection.LocalEndPoint}");
+        //    await using var connection = await client.ConnectAsync(new NamedPipeEndPoint("default"));
+        //    Console.WriteLine($"Connected to {connection.LocalEndPoint}");
 
-            var protocol = new LengthPrefixedProtocol();
-            var reader = connection.CreateReader();
-            var writer = connection.CreateWriter();
+        //    var protocol = new LengthPrefixedProtocol();
+        //    var reader = connection.CreateReader();
+        //    var writer = connection.CreateWriter();
 
-            while (true)
-            {
-                var line = Console.ReadLine();
-                await writer.WriteAsync(protocol, new Message(Encoding.UTF8.GetBytes(line)));
-                var result = await reader.ReadAsync(protocol);
+        //    while (true)
+        //    {
+        //        var line = Console.ReadLine();
+        //        await writer.WriteAsync(protocol, new Message(Encoding.UTF8.GetBytes(line)));
+        //        var result = await reader.ReadAsync(protocol);
 
-                if (result.IsCompleted)
-                {
-                    break;
-                }
+        //        if (result.IsCompleted)
+        //        {
+        //            break;
+        //        }
 
-                reader.Advance();
-            }
-        }
+        //        reader.Advance();
+        //    }
+        //}
 
         //private static async Task DockerDaemon(IServiceProvider serviceProvider)
         //{
