@@ -1,4 +1,4 @@
-﻿#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
+﻿#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0 || NETCOREAPP3_1)
 
 using System;
 using System.Diagnostics.CodeAnalysis;

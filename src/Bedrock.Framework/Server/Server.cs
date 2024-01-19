@@ -1,9 +1,4 @@
-﻿#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
-extern alias NetCore;
-using NetCore;
-#endif
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
