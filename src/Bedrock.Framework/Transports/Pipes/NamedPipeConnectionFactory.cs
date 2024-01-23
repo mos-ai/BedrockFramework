@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 
+using NamedPipeClientStream = Native.System.IO.Pipes.NamedPipeClientStream;
+
 namespace Bedrock.Framework
 {
     public class NamedPipeConnectionFactory : IConnectionFactory
