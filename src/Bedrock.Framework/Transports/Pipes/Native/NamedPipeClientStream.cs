@@ -81,7 +81,7 @@ namespace Native.System.IO.Pipes
 
         public NamedPipeClientStream(string serverName, string pipeName, PipeDirection direction,
             PipeOptions options, TokenImpersonationLevel impersonationLevel, HandleInheritability inheritability)
-            : base(direction, 0)
+            : base(direction, 4096)
         {
             ptr = Native.CreateClient();
             PipeName = FormatPipe(serverName, pipeName);
@@ -271,7 +271,8 @@ namespace Native.System.IO.Pipes
         /// </summary>
         public override void Flush()
         {
-            throw new NotSupportedException();
+            // Don't care it works.
+            //throw new NotSupportedException();
         }
 
         /// <summary>
