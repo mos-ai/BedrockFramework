@@ -36,12 +36,12 @@ jobs:
 
     - name: Set API key
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: nuget setapikey ${{ secrets.NUGET_TOKEN_INTERNAL }} -Config nuget.config -Source ${{ vars.NUGET_SOURCE_INTERNAL }}
+      run: nuget setapikey ${{ secrets.NUGET_TOKEN_INTERNAL }} -Config nuget.config -Source ${{ vars.NUGET_SOURCE_PUBLIC }}
 
     - name: Set symbols API key
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: nuget setapikey ${{ secrets.NUGET_TOKEN_INTERNAL }} -Config nuget.config -Source ${{ vars.NUGET_SOURCE_SYMBOLS_INTERNAL }}
+      run: nuget setapikey ${{ secrets.NUGET_TOKEN_INTERNAL }} -Config nuget.config -Source ${{ vars.NUGET_SOURCE_SYMBOLS_PUBLIC }}
 
     - name: push packages
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: dotnet nuget push **/*.nupkg -s ${{ vars.NUGET_SOURCE_INTERNAL }} -ss ${{ vars.NUGET_SOURCE_SYMBOLS_INTERNAL }} --skip-duplicate
+      run: dotnet nuget push **/*.nupkg -s ${{ vars.NUGET_SOURCE_PUBLIC }} -ss ${{ vars.NUGET_SOURCE_SYMBOLS_PUBLIC }} --skip-duplicate

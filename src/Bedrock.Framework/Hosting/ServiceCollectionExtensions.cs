@@ -8,11 +8,7 @@ namespace Bedrock.Framework
     {
         public static IHostBuilder ConfigureServer(this IHostBuilder builder, Action<ServerBuilder> configure)
         {
-#if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0 || NETCOREAPP3_1 || NET6_0)
             return builder.ConfigureServices((builder, services) =>
-#else
-            return builder.ConfigureServices(services =>
-#endif
             {
                 services.AddHostedService<ServerHostedService>();
 
