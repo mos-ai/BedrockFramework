@@ -136,7 +136,7 @@ public sealed partial class NamedPipeClientStream : global::System.IO.Pipes.Pipe
 
     public NamedPipeClientStream(string serverName, string pipeName, PipeDirection direction,
         PipeOptions options, TokenImpersonationLevel impersonationLevel, HandleInheritability inheritability)
-        : base(direction, 0)
+        : base(direction, 4096)
     {
         ArgumentThrowHelper.ThrowIfNullOrEmpty(pipeName);
         ArgumentNullThrowHelper.ThrowIfNull(serverName);
@@ -166,7 +166,7 @@ public sealed partial class NamedPipeClientStream : global::System.IO.Pipes.Pipe
 
     // Create a NamedPipeClientStream from an existing server pipe handle.
     public NamedPipeClientStream(PipeDirection direction, bool isAsync, bool isConnected, SafePipeHandle safePipeHandle)
-        : base(direction, 0)
+        : base(direction, 4096)
     {
         ArgumentNullThrowHelper.ThrowIfNull(safePipeHandle);
 
