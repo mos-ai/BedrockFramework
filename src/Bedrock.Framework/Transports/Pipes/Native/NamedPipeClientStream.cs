@@ -1,17 +1,14 @@
-﻿using Lachee.IO.Exceptions;
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Pipes;
-using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace Native.System.IO.Pipes;
 
 #if NETSTANDARD2_1 || NETSTANDARD2_2 || NETCOREAPP
-public class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
+public partial class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
 {
     private readonly global::System.IO.Pipes.NamedPipeClientStream _underlyingClient;
 
@@ -92,51 +89,25 @@ public class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
         }
     }
 }
-#else
-public class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
+#elif !UseNativeNamedPipes
+using Microsoft.Win32.SafeHandles;
+
+/// <summary>
+/// Named pipe client. Use this to open the client end of a named pipes created with
+/// NamedPipeServerStream.
+/// </summary>
+public sealed partial class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
 {
-    private IntPtr ptr;
-    private bool _isDisposed;
+    // Maximum interval in milliseconds between which cancellation is checked.
+    // Used by ConnectInternal. 50ms is fairly responsive time but really long time for processor.
+    private const int CancellationCheckInterval = 50;
+    private readonly string? _normalizedPipePath;
+    private readonly TokenImpersonationLevel _impersonationLevel;
+    private readonly PipeOptions _pipeOptions;
+    private readonly HandleInheritability _inheritability;
+    private readonly PipeDirection _direction;
 
-    /// <summary>
-    /// Can the stream read? Always returns true.
-    /// </summary>
-    public override bool CanRead { get { return true; } }
-
-    /// <summary>
-    /// Can the stream seek? Always returns false.
-    /// </summary>
-    public override bool CanSeek { get { return false; } }
-
-    /// <summary>
-    /// Can the stream write? Always returns true.
-    /// </summary>
-    public override bool CanWrite { get { return true; } }
-
-    /// <summary>
-    /// The length of the stream. Always 0.
-    /// </summary>
-    public override long Length { get { return 0; } }
-
-    /// <summary>
-    /// The current position of the stream. Always 0.
-    /// </summary>
-    public override long Position { get { return 0; } set { } }
-
-    /// <summary>
-    /// Checks if the current pipe is connected and running.
-    /// </summary>
-    public new bool IsConnected { get { return Native.IsConnected(ptr); } }
-
-    /// <summary>
-    /// The pipe name for this client.
-    /// </summary>
-    public string PipeName { get; }
-
-    /// <summary>Prefix to prepend to all pipe names.</summary>
-    private static readonly string s_pipePrefix = Path.Combine(Path.GetTempPath(), "CoreFxPipe_");
-
-    #region Constructors
+    // Creates a named pipe client using default server (same machine, or "."), and PipeDirection.InOut
     public NamedPipeClientStream(string pipeName)
         : this(".", pipeName, PipeDirection.InOut, PipeOptions.None, TokenImpersonationLevel.None, HandleInheritability.None)
     {
@@ -165,10 +136,51 @@ public class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
 
     public NamedPipeClientStream(string serverName, string pipeName, PipeDirection direction,
         PipeOptions options, TokenImpersonationLevel impersonationLevel, HandleInheritability inheritability)
-        : base(direction, 4096)
+        : base(direction, 0)
     {
-        ptr = Native.CreateClient();
-        PipeName = FormatPipe(serverName, pipeName);
+        ArgumentThrowHelper.ThrowIfNullOrEmpty(pipeName);
+        ArgumentNullThrowHelper.ThrowIfNull(serverName);
+        if (serverName.Length == 0)
+        {
+            throw new ArgumentException("Argument_EmptyServerName");
+        }
+        if ((options & ~(PipeOptions.WriteThrough | PipeOptions.Asynchronous)) != 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "ArgumentOutOfRange_OptionsInvalid");
+        }
+        if (impersonationLevel < TokenImpersonationLevel.None || impersonationLevel > TokenImpersonationLevel.Delegation)
+        {
+            throw new ArgumentOutOfRangeException(nameof(impersonationLevel), "ArgumentOutOfRange_ImpersonationInvalid");
+        }
+        if (inheritability < HandleInheritability.None || inheritability > HandleInheritability.Inheritable)
+        {
+            throw new ArgumentOutOfRangeException(nameof(inheritability), "ArgumentOutOfRange_HandleInheritabilityNoneOrInheritable");
+        }
+
+        _normalizedPipePath = GetPipePath(serverName, pipeName);
+        _direction = direction;
+        _inheritability = inheritability;
+        _impersonationLevel = impersonationLevel;
+        _pipeOptions = options;
+    }
+
+    // Create a NamedPipeClientStream from an existing server pipe handle.
+    public NamedPipeClientStream(PipeDirection direction, bool isAsync, bool isConnected, SafePipeHandle safePipeHandle)
+        : base(direction, 0)
+    {
+        ArgumentNullThrowHelper.ThrowIfNull(safePipeHandle);
+
+        if (safePipeHandle.IsInvalid)
+        {
+            throw new ArgumentException("Argument_InvalidHandle", nameof(safePipeHandle));
+        }
+        PipeStream.ValidateHandleIsPipe(safePipeHandle);
+
+        InitializeHandle(safePipeHandle, true, isAsync);
+        if (isConnected)
+        {
+            State = PipeState.Connected;
+        }
     }
 
     ~NamedPipeClientStream()
@@ -176,51 +188,63 @@ public class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
         Dispose(false);
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (!_isDisposed)
-        {
-            Disconnect();
-            Native.DestroyClient(ptr);
-            _isDisposed = true;
-        }
-    }
-
-    private static string FormatPipe(string server, string pipeName)
-    {
-        switch (Environment.OSVersion.Platform)
-        {
-            default:
-            case PlatformID.Win32NT:
-                return string.Format(@"\\{0}\pipe\{1}", server, pipeName);
-
-            case PlatformID.Unix:
-                if (server != ".")
-                    throw new PlatformNotSupportedException("Remote pipes are not supported on this platform.");
-
-                return s_pipePrefix + pipeName;
-        }
-    }
-    #endregion
-
-    #region Open Close
-    /// <summary>
-    /// Attempts to open a named pipe.
-    /// </summary>
-    /// <param name="name">The name of the pipe</param>
     public void Connect()
     {
-        // Don't bother trying to open the pipe if it doesn't exist
-        if (!Native.Exists(ptr, PipeName))
+        Connect(Timeout.Infinite);
+    }
+
+    public void Connect(int timeout)
+    {
+        CheckConnectOperationsClient();
+
+        ArgumentOutOfRangeThrowHelper.ThrowIfLessThan(timeout, Timeout.Infinite);
+
+        ConnectInternal(timeout, CancellationToken.None, Environment.TickCount);
+    }
+
+    public void Connect(TimeSpan timeout) => Connect(ToTimeoutMilliseconds(timeout));
+
+    private static string GetPipePath(string serverName, string pipeName)
+    {
+        string normalizedPipePath = Path.GetFullPath(@"\\" + serverName + @"\pipe\" + pipeName);
+        if (String.Equals(normalizedPipePath, @"\\.\pipe\anonymous", StringComparison.OrdinalIgnoreCase))
         {
-            throw new FileNotFoundException();
+            throw new ArgumentOutOfRangeException("pipeName", "ArgumentOutOfRange_AnonymousReserved");
         }
-        int code = Native.Open(ptr, PipeName);
-        if (!IsConnected)
+        return normalizedPipePath;
+    }
+
+    private void ConnectInternal(int timeout, CancellationToken cancellationToken, int startTime)
+    {
+        // This is the main connection loop. It will loop until the timeout expires.
+        int elapsed = 0;
+        SpinWait sw = default;
+        do
         {
-            throw new NamedPipeOpenException(code);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Determine how long we should wait in this connection attempt
+            int waitTime = timeout == Timeout.Infinite ? CancellationCheckInterval : timeout - elapsed;
+            if (cancellationToken.CanBeCanceled && waitTime > CancellationCheckInterval)
+            {
+                waitTime = CancellationCheckInterval;
+            }
+
+            // Try to connect.
+            if (TryConnect(waitTime))
+            {
+                return;
+            }
+
+            // Some platforms may return immediately from TryConnect if the connection could not be made,
+            // e.g. WaitNamedPipe on Win32 will return immediately if the pipe hasn't yet been created,
+            // and open on Unix will fail if the file isn't yet available.  Rather than just immediately
+            // looping around again, do slightly smarter busy waiting.
+            sw.SpinOnce();
         }
+        while (timeout == Timeout.Infinite || (elapsed = unchecked(Environment.TickCount - startTime)) < timeout);
+
+        throw new TimeoutException();
     }
 
     public Task ConnectAsync()
@@ -242,6 +266,10 @@ public class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
 
     public Task ConnectAsync(int timeout, CancellationToken cancellationToken)
     {
+        CheckConnectOperationsClient();
+
+        ArgumentOutOfRangeThrowHelper.ThrowIfLessThan(timeout, Timeout.Infinite);
+
         if (cancellationToken.IsCancellationRequested)
         {
             return Task.FromCanceled(cancellationToken);
@@ -252,172 +280,48 @@ public class NamedPipeClientStream : global::System.IO.Pipes.PipeStream
         return Task.Factory.StartNew(static state =>
         {
             var tuple = ((NamedPipeClientStream stream, int timeout, CancellationToken cancellationToken, int startTime))state!;
-            tuple.stream.Connect();
+            tuple.stream.ConnectInternal(tuple.timeout, tuple.cancellationToken, tuple.startTime);
         }, (this, timeout, cancellationToken, startTime), cancellationToken, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
-    /// <summary>
-    /// Closes the named pipe already opened.
-    /// </summary>
-    public void Disconnect()
+    public Task ConnectAsync(TimeSpan timeout, CancellationToken cancellationToken = default) =>
+        ConnectAsync(ToTimeoutMilliseconds(timeout), cancellationToken);
+
+    private static int ToTimeoutMilliseconds(TimeSpan timeout)
     {
-        Native.Close(ptr);
+        long totalMilliseconds = (long)timeout.TotalMilliseconds;
+        ArgumentOutOfRangeThrowHelper.ThrowIfLessThan(totalMilliseconds, -1, nameof(timeout));
+        ArgumentOutOfRangeThrowHelper.ThrowIfGreaterThan(totalMilliseconds, int.MaxValue, nameof(timeout));
+        return (int)totalMilliseconds;
     }
-    #endregion
 
-    /// <summary>
-    /// Reads a block of bytes from a stream and writes the data to a specified buffer. Will not block if there is no data available to write.
-    /// </summary>
-    /// <param name="buffer">When this method returns, contains the specified byte array with the values between offset and (offset + count - 1) replaced by the bytes read from the current source.</param>
-    /// <param name="offset">The byte offset in the buffer array at which the bytes that are read will be placed.</param>
-    /// <param name="count">The maximum number of bytes to read.</param>
-    /// <returns>The total number of bytes that are read into buffer. This might be less than the number of bytes requested if that number of bytes is not currently available. If the value is less than 0, then a error has occured.</returns>
-    public override int Read(byte[] buffer, int offset, int count)
+    // override because named pipe clients can't get/set properties when waiting to connect
+    // or broken
+    protected override void CheckPipePropertyOperations()
     {
-        //Make sure we are connected
-        if (!IsConnected)
-            throw new NamedPipeConnectionException("Cannot read stream as pipe is not connected");
+        base.CheckPipePropertyOperations();
 
-        if (offset + count > buffer.Length)
-            throw new ArgumentOutOfRangeException("count", "Cannot read as the count exceeds the buffer size");
-
-        //Prepare bytes read and a buffer of memory to read into
-        int bytesRead;
-        int size = Marshal.SizeOf(buffer[0]) * count;
-        IntPtr buffptr = Marshal.AllocHGlobal(size);
-
-        try
+        if (State == PipeState.WaitingToConnect)
         {
-            //Read the bytes
-            bytesRead = Native.ReadFrame(ptr, buffptr, count);
-            if (bytesRead <= 0)
-            {
-                //A error actively occured. If it is 0 we just read no bytes.
-                if (bytesRead < 0)
-                {
-                    //We have a pretty bad error, we will log it for prosperity. 
-                    throw new NamedPipeReadException(bytesRead);
-                }
-
-                //Return a empty frame and return false (read failure).
-                return 0;
-            }
-            else
-            {
-                //WE have read a valid amount of bytes, so copy the marshaled bytes over to the buffer
-                Marshal.Copy(buffptr, buffer, offset, bytesRead);
-                return bytesRead;
-            }
+            throw new InvalidOperationException("InvalidOperation_PipeNotYetConnected");
         }
-        finally
+        if (State == PipeState.Broken)
         {
-            //Finally, before we exit this try block, free the pointer we allocated.
-            Marshal.FreeHGlobal(buffptr);
+            throw new IOException("IO_PipeBroken");
         }
     }
 
-    /// <summary>
-    /// Writes a block of bytes to the current stream using data from a buffer
-    /// </summary>
-    /// <param name="buffer">The buffer that contains data to write to the pipe.</param>
-    /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
-    /// <param name="count">The maximum number of bytes to write to the current stream.</param>
-    public override void Write(byte[] buffer, int offset, int count)
+    // named client is allowed to connect from broken
+    private void CheckConnectOperationsClient()
     {
-        //Make sure we are connected
-        if (!IsConnected)
-            throw new NamedPipeConnectionException("Cannot write stream as pipe is not connected");
-
-        //Copy the bytes into a new marshaled block
-        int size = Marshal.SizeOf(buffer[0]) * count;
-        IntPtr buffptr = Marshal.AllocHGlobal(size);
-
-        try
+        if (State == PipeState.Connected)
         {
-            //Copy the block of memory over
-            Marshal.Copy(buffer, offset, buffptr, count);
-
-            //Send the block
-            int result = Native.WriteFrame(ptr, buffptr, count);
-            if (result < 0) throw new NamedPipeWriteException(result);
+            throw new InvalidOperationException("InvalidOperation_PipeAlreadyConnected");
         }
-        finally
+        if (State == PipeState.Closed)
         {
-            //Finally, before exiting the try catch, free the memory we assigned.
-            Marshal.FreeHGlobal(buffptr);
+            throw new ObjectDisposedException(null, "ObjectDisposed_PipeClosed");
         }
-    }
-
-    #region unsupported
-
-    /// <summary>
-    /// Flushes the stream. Not supported by NamedPipeClient.
-    /// </summary>
-    public override void Flush()
-    {
-        // Don't care it works.
-        //throw new NotSupportedException();
-    }
-
-    /// <summary>
-    /// Seeks to the given posisiton. Not supported by NamedPipeClient
-    /// </summary>
-    /// <param name="offset"></param>
-    /// <param name="origin"></param>
-    /// <returns></returns>
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotSupportedException();
-    }
-
-    /// <summary>
-    /// Sets the length of the stream. Not supported by NamedPipeClient
-    /// </summary>
-    /// <param name="value"></param>
-    public override void SetLength(long value)
-    {
-        throw new NotSupportedException();
-    }
-
-    #endregion
-
-    private static class Native
-    {
-        const string LIBRARY_NAME = "NativeNamedPipe";
-
-        #region Creation and Destruction
-        [DllImport(LIBRARY_NAME, EntryPoint = "CreateClient", CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr CreateClient();
-
-        [DllImport(LIBRARY_NAME, EntryPoint = "DestroyClient", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DestroyClient(IntPtr client);
-        #endregion
-
-        #region State Control
-
-        [DllImport(LIBRARY_NAME, EntryPoint = "IsConnected", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool IsConnected([MarshalAs(UnmanagedType.SysInt)] IntPtr client);
-
-        [DllImport(LIBRARY_NAME, EntryPoint = "Open", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int Open(IntPtr client, [MarshalAs(UnmanagedType.LPStr)] string pipename);
-
-        [DllImport(LIBRARY_NAME, EntryPoint = "Exists", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool Exists(IntPtr client, [MarshalAs(UnmanagedType.LPStr)] string pipename);
-
-        [DllImport(LIBRARY_NAME, EntryPoint = "Close", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Close(IntPtr client);
-
-        #endregion
-
-        #region IO
-
-        [DllImport(LIBRARY_NAME, EntryPoint = "ReadFrame", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int ReadFrame(IntPtr client, IntPtr buffer, int length);
-
-        [DllImport(LIBRARY_NAME, EntryPoint = "WriteFrame", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int WriteFrame(IntPtr client, IntPtr buffer, int length);
-
-        #endregion
     }
 }
 #endif
