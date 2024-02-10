@@ -35,8 +35,8 @@ public sealed class NamedPipeTransportFactory : IConnectionListenerFactory
         ILoggerFactory loggerFactory)
     {
 #if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0 || NETCOREAPP3_1)
-        ArgumentNullExceptionEx.ThrowIfNull(options);
-        ArgumentNullExceptionEx.ThrowIfNull(loggerFactory);
+        ArgumentNullThrowHelper.ThrowIfNull(options);
+        ArgumentNullThrowHelper.ThrowIfNull(loggerFactory);
 #else
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(loggerFactory);
@@ -50,7 +50,7 @@ public sealed class NamedPipeTransportFactory : IConnectionListenerFactory
     public ValueTask<IConnectionListener> BindAsync(EndPoint endpoint, CancellationToken cancellationToken = default)
     {
 #if (NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0 || NETCOREAPP3_1)
-        ArgumentNullExceptionEx.ThrowIfNull(endpoint);
+        ArgumentNullThrowHelper.ThrowIfNull(endpoint);
 #else
         ArgumentNullException.ThrowIfNull(endpoint);
 #endif

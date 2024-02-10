@@ -68,7 +68,7 @@ public class Stack<T> : IEnumerable<T>,
     // must be a non-negative number.
     public Stack(int capacity)
     {
-        ArgumentOutOfRangeExceptionEx.ThrowIfNegative(capacity);
+        ArgumentOutOfRangeThrowHelper.ThrowIfNegative(capacity);
         _array = new T[capacity];
     }
 
@@ -76,7 +76,7 @@ public class Stack<T> : IEnumerable<T>,
     // pushed onto the stack in the same order they are read by the enumerator.
     public Stack(IEnumerable<T> collection)
     {
-        ArgumentNullExceptionEx.ThrowIfNull(collection);
+        ArgumentNullThrowHelper.ThrowIfNull(collection);
 
         _array = EnumerableHelpers.ToArray(collection, out _size);
     }
@@ -120,7 +120,7 @@ public class Stack<T> : IEnumerable<T>,
     // Copies the stack into an array.
     public void CopyTo(T[] array, int arrayIndex)
     {
-        ArgumentNullExceptionEx.ThrowIfNull(array);
+        ArgumentNullThrowHelper.ThrowIfNull(array);
 
         if (arrayIndex < 0 || arrayIndex > array.Length)
         {
@@ -143,7 +143,7 @@ public class Stack<T> : IEnumerable<T>,
 
     void ICollection.CopyTo(Array array, int arrayIndex)
     {
-        ArgumentNullExceptionEx.ThrowIfNull(array);
+        ArgumentNullThrowHelper.ThrowIfNull(array);
 
         if (array.Rank != 1)
         {
@@ -202,8 +202,8 @@ public class Stack<T> : IEnumerable<T>,
     /// <exception cref="ArgumentOutOfRangeEx">Passed capacity is lower than 0 or entries count.</exception>
     public void TrimExcess(int capacity)
     {
-        ArgumentOutOfRangeExceptionEx.ThrowIfNegative(capacity);
-        ArgumentOutOfRangeExceptionEx.ThrowIfLessThan(capacity, _size);
+        ArgumentOutOfRangeThrowHelper.ThrowIfNegative(capacity);
+        ArgumentOutOfRangeThrowHelper.ThrowIfLessThan(capacity, _size);
 
         if (capacity == _array.Length)
             return;
@@ -318,7 +318,7 @@ public class Stack<T> : IEnumerable<T>,
     /// <returns>The new capacity of this stack.</returns>
     public int EnsureCapacity(int capacity)
     {
-        ArgumentOutOfRangeExceptionEx.ThrowIfNegative(capacity);
+        ArgumentOutOfRangeThrowHelper.ThrowIfNegative(capacity);
 
         if (_array.Length < capacity)
         {
