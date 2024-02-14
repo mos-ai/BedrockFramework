@@ -1,11 +1,16 @@
-﻿using System;
+﻿#if NETSTANDARD2_0
+extern alias Backports;
+using Backports::System.IO.Pipes;
+#else
 using System.IO.Pipes;
+#endif
+
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Connections;
 
-using NamedPipeClientStream = Native.System.IO.Pipes.NamedPipeClientStream;
+using Microsoft.AspNetCore.Connections;
 
 namespace Bedrock.Framework
 {

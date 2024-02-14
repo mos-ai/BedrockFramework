@@ -1,4 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿#if NETSTANDARD2_0
+extern alias Backports;
+using Backports::System.IO.Pipes;
+#else
+using System.IO.Pipes;
+#endif
+
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Principal;
 
@@ -8,7 +15,7 @@ namespace Bedrock.Framework
     {
         public NamedPipeEndPoint(string pipeName,
                                  string serverName = ".",
-                                 System.IO.Pipes.PipeOptions pipeOptions = System.IO.Pipes.PipeOptions.WriteThrough | System.IO.Pipes.PipeOptions.Asynchronous,
+                                 PipeOptions pipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous,
                                  TokenImpersonationLevel impersonationLevel = TokenImpersonationLevel.Anonymous)
         {
             ServerName = serverName;
@@ -19,7 +26,7 @@ namespace Bedrock.Framework
 
         public string ServerName { get; }
         public string PipeName { get; }
-        public System.IO.Pipes.PipeOptions PipeOptions { get; set; }
+        public PipeOptions PipeOptions { get; set; }
         public TokenImpersonationLevel ImpersonationLevel { get; set; }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
