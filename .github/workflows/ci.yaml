@@ -9,33 +9,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-      with:
-        submodules: true
-
-    # Build SubModule dependencies first
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.0.2
-
-    - name: Build Submodule (unity-named-pipes)
-      shell: pwsh
-      run: |
-        cd deps\unity-named-pipes
-        if ($IsWindows) 
-        {
-            Write-Host "Building 64Bit"
-            ./build-library.ps1 -make64bit
-
-            Write-Host "Building 32Bit"
-            ./build-library.ps1
-        }
-        elseif ($IsMacOS)
-        {
-            sh ./build-mac-library.sh
-        }
-        else
-        {
-            sh ./build-linux-library.sh
-        }
 
     - uses: aarnott/nbgv@v0.4.0
       with:

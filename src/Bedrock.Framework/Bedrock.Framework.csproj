@@ -7,7 +7,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-	<UseNativeNamedPipes>false</UseNativeNamedPipes>
   </PropertyGroup>
 
     <!--<ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
@@ -27,18 +26,6 @@
     <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
 
     <PackageReference Include="Polyfill.Experimental" Version="1.0.1" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="Backports.System.IO.Pipes" Version="1.1.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" Aliases="Backports" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(UseNativeNamedPipes)' == 'true'">
-    <None Include="..\..\deps\unity-named-pipes\artifacts\NativeNamedPipe_x86.dll" Link="runtimes/win-x86/native/NativeNamedPipe_x86.dll" Pack="true" PackagePath="runtimes/win-x86/native/">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\deps\unity-named-pipes\artifacts\NativeNamedPipe.dll" Link="runtimes/win-x64/native/NativeNamedPipe.dll" Pack="true" PackagePath="runtimes/win-x64/native/">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <PropertyGroup>
-    <DefineConstants Condition="'$(UseNativeNamedPipes)' == 'true'">$(DefineConstants);UseNativeNamedPipes;</DefineConstants>
-  </PropertyGroup>
 </Project>

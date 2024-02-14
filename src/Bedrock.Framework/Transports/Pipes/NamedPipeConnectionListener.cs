@@ -1,15 +1,19 @@
-﻿// TODO: Later see how much of this can be replaced with the following implementation:
+﻿#if NETSTANDARD2_0
+extern alias Backports;
+using Backports::System.IO.Pipes;
+#else
+using System.IO.Pipes;
+#endif
+
+// TODO: Later see how much of this can be replaced with the following implementation:
 // https://github.com/dotnet/aspnetcore/blob/main/src/Servers/Kestrel/Transport.NamedPipes/src/Internal/NamedPipeConnectionListener.cs
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Pipes;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 

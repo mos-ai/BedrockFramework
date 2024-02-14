@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Connections;
+﻿#if NETSTANDARD2_0
+extern alias Backports;
+using Backports::System.IO.Pipes;
+#else
+using System.IO.Pipes;
+#endif
+
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Features;
 
 using System;
 using System.Collections.Generic;
 using System.IO.Pipelines;
-using System.IO.Pipes;
 using System.Threading.Tasks;
 
 namespace Bedrock.Framework
@@ -19,7 +25,7 @@ namespace Bedrock.Framework
             Transport = this;
             ConnectionId = Guid.NewGuid().ToString();
             RemoteEndPoint = endPoint;
-
+            
             Input = PipeReader.Create(stream);
             Output = PipeWriter.Create(stream);
         }
