@@ -1,6 +1,5 @@
 ﻿#if NETSTANDARD2_0
-extern alias Backports;
-using Backports::System.IO.Pipes;
+using Backports.System.IO.Pipes;
 #else
 using System.IO.Pipes;
 #endif

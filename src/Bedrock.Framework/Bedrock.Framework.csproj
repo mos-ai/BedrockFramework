@@ -26,6 +26,7 @@
     <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
 
     <PackageReference Include="Polyfill.Experimental" Version="1.0.1" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="Backports.System.IO.Pipes" Version="1.1.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" Aliases="Backports" />
+    <PackageReference Include="Backports.System.IO.Pipes" Version="1.1.1-alpha.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
   </ItemGroup>
 </Project>
