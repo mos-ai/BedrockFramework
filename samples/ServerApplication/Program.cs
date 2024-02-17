@@ -59,6 +59,14 @@ namespace ServerApplication
                             namedPipes.Listen("default",
                                 builder => builder.UseConnectionLogging().UseConnectionHandler<MyCustomProtocol>());
                         })
+                        .UseSockets(sockets =>
+                        {
+                            sockets.ListenAnyIP(9000,
+                                builder => builder.UseConnectionLogging().UseConnectionHandler<EchoServerApplication>());
+
+                            sockets.ListenAnyIP(9001,
+                                builder => builder.UseConnectionLogging().UseConnectionHandler<MyCustomProtocol>());
+                        })
                         .Build();
 
             var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<Program>();

@@ -163,11 +163,20 @@ namespace ClientApplication
         private static async Task EchoServer(IServiceProvider serviceProvider)
         {
             var client = new ClientBuilder(serviceProvider)
+#if SOCKETS || true
+                                    .UseSockets()
+#elif NAMEDPIPES
                                     .UseNamedPipes()
+#endif
                                     .UseConnectionLogging()
                                     .Build();
 
+#if SOCKETS || true
+            var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 9000));
+#elif NAMEDPIPES
             var connection = await client.ConnectAsync(new NamedPipeEndPoint("default_echo"));
+#endif
+
             Console.WriteLine($"Connected to {connection.LocalEndPoint}");
 
             Console.WriteLine("Echo server running, type into the console");

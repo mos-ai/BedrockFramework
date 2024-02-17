@@ -9,24 +9,26 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-    <!--<ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+    <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>-->
+    </ItemGroup>
 
   <ItemGroup>
+    <!--<PackageReference Include="deniszykov.WebSocketListener" Version="4.2.16" />-->
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+    <PackageReference Include="Polyfill" Version="2.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+	<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
+	<PackageReference Include="System.Threading.Channels" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
-    <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
-
-    <PackageReference Include="Polyfill.Experimental" Version="1.0.1" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="Backports.System.IO.Pipes" Version="1.1.1-alpha.0.2" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
+    <PackageReference Include="Backports.System.IO.Pipes" Version="1.1.1-alpha.0.2" />
   </ItemGroup>
 </Project>
